@@ -25,13 +25,15 @@ import misc.params as params
 
 class Association:
     '''Data association class with single nearest neighbor association and gating based on Mahalanobis distance'''
-    def __init__(self):
-        self.association_matrix = np.matrix([]) 
-        self.unassigned_tracks = []
-        self.unassigned_meas = []
+    def __init__(self): #역할: 객체를 초기화하고 association_matrix, unassigned_tracks, unassigned_meas 등의 변수를 준비
+        self.association_matrix = np.matrix([])  #association_matrix: 트랙과 측정값 간의 연관성을 나타내는 매트릭스.이 매트릭스는 Mahalanobis 거리 값을 포함
+        self.unassigned_tracks = [] #unassigned_tracks: 아직 연관되지 않은 트랙의 인덱스를 저장하는 리스트
+        self.unassigned_meas = [] #unassigned_meas: 아직 연관되지 않은 측정값의 인덱스를 저장하는 리스트
         
-    def associate(self, track_list, meas_list, KF):
-             
+    def associate(self, track_list, meas_list, KF): #주어진 트랙 리스트와 측정값 리스트 사이의 Mahalanobis 거리를 계산하여 association_matrix를 업데이트
+                                                    #track_list: 현재 추적 중인 트랙 리스트
+                                                    #meas_list: 새로운 측정값 리스트
+                                                    #KF: 칼만 필터 객체.
         ############
         # TODO Step 3: association:
         # - replace association_matrix with the actual association matrix based on Mahalanobis distance (see below) for all tracks and all measurements
@@ -45,10 +47,10 @@ class Association:
         #트랙과 측정값간의 매칭을 개선할 수 있도록 설계
         ############
         
-        N = len(track_list)
-        M = len(meas_list)
-        self.association_matrix = np.ones((N, M)) * np.inf
-        
+        N = len(track_list) 
+        M = len(meas_list) 
+        self.association_matrix = np.ones((N, M)) * np.inf #트랙과 측정값 간의 Mahalanobis 거리 값을 저장.
+                                                           #Mahalanobis 거리가 특정 임계값 이내에 있는 경우, 트랙과 측정값을 연관시키고, 그렇지 않은 경우 연관되지 않음.
         # Define the maximum distance threshold for gating
         max_dist_threshold = 100  # adjust based on application needs
         
@@ -66,7 +68,7 @@ class Association:
                     weighted_dist = dist * weight  # Apply weight to the distance , 계산된 mahalanobis distance에 가중치를 적용해 weighted_dist를 계산,이를 최종적으로 association_matrix에 저장
                     
                     self.association_matrix[i, j] = weighted_dist #weihted_dist를 association_matrix에 저장
-
+                                                    #가까운 측정값에 더 높은 가중치를 주기 위해 가중치(weight)를 사용한 거리 계산이 추가됨.
         self.unassigned_tracks = list(range(N))
         self.unassigned_meas = list(range(M))
 
@@ -93,7 +95,10 @@ class Association:
         # END student code
         ############ 
                 
-    def get_closest_track_and_meas(self):
+    def get_closest_track_and_meas(self): 
+        #역할: association_matrix에서 가장 작은 값을 찾아 그 트랙과 측정값을 반환
+        #내부로직: 가장 작은 거리 값을 찾고 해당 트랙과 측정값을 unassigned_tracks와 unassigned_meas 리스트에서 제거 ,선택된 트랙과 측정값의 인덱스를 반환.
+                 
         ############
         # TODO Step 3: find closest track and measurement:
         # - find minimum entry in association matrix
@@ -135,7 +140,11 @@ class Association:
         ############ 
         return update_track, update_meas     
         '''
-    def gating(self, MHD, sensor): 
+    def gating(self, MHD, sensor): #역할: Mahalanobis 거리를 기준으로 주어진 측정값이 트랙과 연관될 수 있는지 확인
+                                   #MHD: Mahalanobis 거리 값.
+                                   #sensor: 측정값을 제공하는 센서 객체.
+        #내부로직: Mahalanobis 거리가 센서의 임계값을 넘지 않는 경우 True를 반환하여 트랙과 측정값을 연관
+        
         ############
         # TODO Step 3: return True if measurement lies inside gate, otherwise False
         ############
@@ -149,27 +158,40 @@ class Association:
         # END student code
         ############ 
         
-    def MHD(self, track, meas, KF):
+    def MHD(self, track, meas, KF): #역할: 트랙과 측정값 간의 Mahalanobis 거리를 계산
+        #track: 트랙 객체, meas: 측정값 객체, KF: 칼만 필터 객체.
         ############
         # TODO Step 3: calculate and return Mahalanobis distance
         ############
         """Mahalanobis distance calculation"""
+        #내부로직:
+        #H:측정 매트릭스
+        #S:잔차의 공분산 행렬
+        #gamma: 측정값과 예측된 값 간의 잔차
+
+
         H = meas.sensor.get_H(track.x)  # measurement matrix
         S = H * KF.P * H.T + meas.R  # covariance of residual
         gamma = meas.z - meas.sensor.get_hx(track.x)  # residual
         
         dist = gamma.T * np.linalg.inv(S) * gamma  # Mahalanobis distance
+                                                   #Mahalanobis 거리를 계산하고 반환.
+        
         return dist.item()
         
         ############
         # END student code
         ############ 
     
+    #associate_and_update 함수, 역할: 트랙과 측정값을 연관시키고, 연관된 트랙에 대해 칼만 필터를 사용하여 업데이트
     def associate_and_update(self, manager, meas_list, KF):
+        #manager: 트랙 관리 객체, meas_list: 측정값 리스트, KF: 칼만 필터 객체
         # associate measurements and tracks
         self.associate(manager.track_list, meas_list, KF)
     
         # update associated tracks with measurements
+        #내부로직 : 연관되지 않은 트랙과 측정값이 있는 동안, 가장 가까운 트랙과 측정값을 찾아서 업데이트를 수행.
+        #내부로직2 :  업데이트된 트랙의 상태를 갱신하고, 점수를 기록.        
         while self.association_matrix.shape[0]>0 and self.association_matrix.shape[1]>0:
             
             # search for next association between a track and a measurement

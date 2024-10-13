@@ -52,16 +52,23 @@ import misc.params as params
 ## Set parameters and perform initializations
 
 ## Select Waymo Open Dataset file and frame numbers
-#data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-#data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-#data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1
+data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1 ,#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1)
+                                                                                                                    #프로젝트 지침 2단계,BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                                                                                                                    #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
+                                                                                                                    #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                                                                                    #프로젝트 지침 3단계, 모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+                                                                                                                    #프로젝트 지침  4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
 #data_filename = 'training_segment-10072231702153043603_5725_000_5745_000_with_camera_labels.tfrecord' # Sequence 2
-data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' # Sequence 3 #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' # Sequence 3 #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
 
 
-#show_only_frames = [0, 1] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-show_only_frames = [0, 200] # show only frames in interval for debugging ,프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-
+#show_only_frames = [0, 1] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+                          #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                          #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3) 
+#show_only_frames = [0, 200] # show only frames in interval for debugging ,프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+show_only_frames = [50, 51] #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                            #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+                            #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
 ''' 
 #원본
 ## Prepare Waymo Open Dataset file for loading
@@ -75,14 +82,25 @@ datafile_iter = iter(datafile)  # initialize dataset iterator
 ## Prepare Waymo Open Dataset file for loading
 #멘토가 주신 것
 data_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', data_filename) # adjustable path in case this script is called from another working directory
-model = "darknet" #fpn-resnet
-#sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-sequence = "3" #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2), 멘토의 조언
+model = "darknet" #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+
+#model = 'fpn-resnet'  #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1), configs_det = det.load_configs(model_name="fpn_resnet")이므로 이렇게 수정
+
+sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+               #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+#sequence = "3" #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2), 멘토의 조언
 #results_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'results/' + model + '/results_sequence_' + sequence + '_' + 'darknet')#resnet
-#results_fullpath = '/workspace/home/results/darknet/results_sequence_1_darknet'
+results_fullpath = '/workspace/home/results/darknet/results_sequence_1_darknet'
 #results_fullpath = '/home/workspace/results/darknet/results_sequence_1_darknet' #에러발생 ,2_darknet으로 해도 에러발생
-results_fullpath = os.path.join('/home/workspace/results/darknet/results_sequence_3_darknet') #멘토의 조언으로 3으로 바꿈
-datafile = WaymoDataFileReader(data_fullpath)
+#results_fullpath = os.path.join('/home/workspace/results/darknet/results_sequence_3_darknet') #멘토의 조언으로 3으로 바꿈
+                                                                                            #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+
+#results_fullpath = os.path.join('/home/workspace/results/fpn-resnet/results_sequence_1_resnet') #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                                                                #configs_det = det.load_configs(model_name="fpn_resnet")이므로 이렇게 수정
+
+
+datafile = WaymoDataFileReader(data_fullpath) #init.py
 datafile_iter = iter(datafile)  # initialize dataset iterator    
 print("data_fullpath: ", data_fullpath)
 print("results_fullpath: ", results_fullpath)
@@ -91,8 +109,12 @@ print("results_fullpath: ", results_fullpath)
 
 
 ## Initialize object detection
-#configs_det = det.load_configs(model_name='fpn_resnet') # options are 'darknet', 'fpn_resnet'
+#configs_det = det.load_configs(model_name='fpn_resnet') # options are 'darknet', 'fpn_resnet' #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                        #프로젝트 지침3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+
 configs_det = det.load_configs(model_name='darknet') # options are 'darknet', 'fpn_resnet'
+                                                     #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+
 model_det = det.create_model(configs_det)
 
 configs_det.use_labels_as_objects = False # True = use groundtruth labels as objects, False = use model-based detection
@@ -101,25 +123,49 @@ configs_det.use_labels_as_objects = False # True = use groundtruth labels as obj
 # configs_det.lim_y = [-25, 25] 
 
 ## Initialize tracking
-KF = Filter() # set up Kalman filter 
-association = Association() # init data association
-manager = Trackmanagement() # init track manager
+KF = Filter() # set up Kalman filter #filter.py 파일
+association = Association() # init data association #association.py파일
+manager = Trackmanagement() # init track manager, trackmanagement.py 파일
 lidar = None # init lidar sensor object
 camera = None # init camera sensor object
 np.random.seed(10) # make random values predictable
 
 ## Selective execution and visualization
 
-exec_data = [] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-#exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
-exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_data = [] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+exec_data = ['pcl_from_rangeimage']  #프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                                      #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3) 
+                                      #프로젝트 지침  4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+
+#exec_data = ['pcl_from_rangeimage', 'load_image'] #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                   #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+
+exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
+                 ##프로젝트 지침  4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+                                                            
+#exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_detection = ['bev_from_pcl'] # 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1), #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)  
+                                  #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3) 
+#exec_detection = ['bev_from_pcl', 'detect_objects'] #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                     #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+                   #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)
+                   #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
+                   #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)  
+                   #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+                   #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+                
 #exec_visualization = [] # options are 'show_range_image', 'show_bev', 'show_pcl', 'show_labels_in_image', 'show_objects_and_labels_in_bev', 'show_objects_in_bev_labels_in_camera', 'show_tracks', 'show_detection_performance', 'make_tracking_movie'
-
 #exec_visualization = ['show_range_image'] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-exec_visualization = ['show_pcl']  #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_visualization = ['show_pcl']  #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_visualization = [] #프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) ,#프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)  
+                        #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
+#exec_visualization = ['show_objects_in_bev_labels_in_camera'] #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                               #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)  
+exec_visualization = ['show_detection_performance']  #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
 
-exec_list = make_exec_list(exec_detection, exec_tracking, exec_visualization)
+
+exec_list = make_exec_list(exec_detection, exec_tracking, exec_visualization) #make_exec_list (helpers.py)
 vis_pause_time = 0 # set pause time between frames in ms (0 = stop between frames until key is pressed)
 
 
@@ -151,9 +197,9 @@ while True:
         ## Perform 3D object detection
 
         ## Extract calibration data and front camera image from frame
-        lidar_name = dataset_pb2.LaserName.TOP
+        lidar_name = dataset_pb2.LaserName.TOP #dataset_pb2.py파일
         camera_name = dataset_pb2.CameraName.FRONT
-        lidar_calibration = waymo_utils.get(frame.context.laser_calibrations, lidar_name)        
+        lidar_calibration = waymo_utils.get(frame.context.laser_calibrations, lidar_name)  #waymo_utils (utils.py)
         camera_calibration = waymo_utils.get(frame.context.camera_calibrations, camera_name)
         if 'load_image' in exec_list:
             image = tools.extract_front_camera_image(frame) 
@@ -161,12 +207,15 @@ while True:
         ## Compute lidar point-cloud from range image    
         if 'pcl_from_rangeimage' in exec_list:
             print('computing point-cloud from lidar range image')
-            lidar_pcl = tools.pcl_from_range_image(frame, lidar_name)
+            lidar_pcl = tools.pcl_from_range_image(frame, lidar_name) #tools(object_tools.py)
         else:
             print('loading lidar point-cloud from result file')
             lidar_pcl = load_object_from_file(results_fullpath, data_filename, 'lidar_pcl', cnt_frame)
+                        #load_object_from_file(helpers.py)
             
         ## Compute lidar birds-eye view (bev)
+
+        #bev_from_pcl (objdet_pcl.py)
         if 'bev_from_pcl' in exec_list:
             print('computing birds-eye view from lidar pointcloud')
             lidar_bev = pcl.bev_from_pcl(lidar_pcl, configs_det)
@@ -177,11 +226,11 @@ while True:
         ## 3D object detection
         if (configs_det.use_labels_as_objects==True):
             print('using groundtruth labels as objects')
-            detections = tools.convert_labels_into_objects(frame.laser_labels, configs_det)
+            detections = tools.convert_labels_into_objects(frame.laser_labels, configs_det) #convert_labels_into_objects(objdet_tools.py)
         else:
             if 'detect_objects' in exec_list:
                 print('detecting objects in lidar pointcloud')   
-                detections = det.detect_objects(lidar_bev, model_det, configs_det)
+                detections = det.detect_objects(lidar_bev, model_det, configs_det) #objdet_detect.py파일
             else:
                 print('loading detected objects from result file')
                 # load different data for final project vs. mid-term project
@@ -201,7 +250,8 @@ while True:
         ## Performance evaluation for object detection
         if 'measure_detection_performance' in exec_list:
             print('measuring detection performance')
-            det_performance = eval.measure_detection_performance(detections, frame.laser_labels, valid_label_flags, configs_det.min_iou)     
+            det_performance = eval.measure_detection_performance(detections, frame.laser_labels, valid_label_flags, configs_det.min_iou) #measure_detection_performance(objdet_eval.py)
+                                   #measure_detection_performance(objdet_eval.py)    
         else:
             print('loading detection performance measures from file')
             # load different data for final project vs. mid-term project
@@ -214,12 +264,14 @@ while True:
         
 
         ## Visualization for object detection
+        #show_range_image(objdet_pcl.py)
         if 'show_range_image' in exec_list:
             img_range = pcl.show_range_image(frame, lidar_name)
             img_range = img_range.astype(np.uint8)
             cv2.imshow('range_image', img_range)
             cv2.waitKey(vis_pause_time)
 
+        #show_pcl(objdet_pcl.py)
         if 'show_pcl' in exec_list:
             pcl.show_pcl(lidar_pcl)
 
@@ -270,16 +322,16 @@ while True:
                     meas_list_cam = camera.generate_measurement(cnt_frame, z, meas_list_cam)
             
             # Kalman prediction
-            for track in manager.track_list:
+            for track in manager.track_list: #trackmagement.py 
                 print('predict track', track.id)
                 KF.predict(track)
                 track.set_t((cnt_frame - 1)*0.1) # save next timestamp
                 
             # associate all lidar measurements to all tracks
-            association.associate_and_update(manager, meas_list_lidar, KF)
+            association.associate_and_update(manager, meas_list_lidar, KF) #association.py파일
             
             # associate all camera measurements to all tracks
-            association.associate_and_update(manager, meas_list_cam, KF)
+            association.associate_and_update(manager, meas_list_cam, KF) #association.py파일
             
             # save results for evaluation
             result_dict = {}
@@ -313,7 +365,9 @@ while True:
 
 ## Evaluate object detection performance
 if 'show_detection_performance' in exec_list:
-    eval.compute_performance_stats(det_performance_all, configs_det)
+    #eval.compute_performance_stats(det_performance_all, configs_det)
+    print(det_performance_all) #CHATGPT가 추천한 코드 (자료분석 데이터 출력을 위해서 det_performance_all을 한번 출력해봄(평가는 아님)
+    eval.compute_performance_stats(det_performance_all)
 
 ## Plot RMSE for all tracks
 if 'show_tracks' in exec_list:

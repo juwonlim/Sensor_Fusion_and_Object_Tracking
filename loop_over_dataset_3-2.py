@@ -52,16 +52,21 @@ import misc.params as params
 ## Set parameters and perform initializations
 
 ## Select Waymo Open Dataset file and frame numbers
-#data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-#data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-#data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1
+data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1 ,#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1)
+                                                                                                                    #프로젝트 지침 2단계,BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                                                                                                                    #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
+                                                                                                                    #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                                                                                    #프로젝트 지침 3단계, 모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
 #data_filename = 'training_segment-10072231702153043603_5725_000_5745_000_with_camera_labels.tfrecord' # Sequence 2
-data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' # Sequence 3 #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' # Sequence 3 #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
 
 
-#show_only_frames = [0, 1] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-show_only_frames = [0, 200] # show only frames in interval for debugging ,프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-
+#show_only_frames = [0, 1] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+                          #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                          #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3) 
+#show_only_frames = [0, 200] # show only frames in interval for debugging ,프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+show_only_frames = [50, 51] #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                            #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
 ''' 
 #원본
 ## Prepare Waymo Open Dataset file for loading
@@ -75,13 +80,21 @@ datafile_iter = iter(datafile)  # initialize dataset iterator
 ## Prepare Waymo Open Dataset file for loading
 #멘토가 주신 것
 data_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', data_filename) # adjustable path in case this script is called from another working directory
-model = "darknet" #fpn-resnet
-#sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-sequence = "3" #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2), 멘토의 조언
+#model = "darknet" #fpn-resnet
+model = 'fpn-resnet'  #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1), configs_det = det.load_configs(model_name="fpn_resnet")이므로 이렇게 수정
+
+sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+               #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+#sequence = "3" #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2), 멘토의 조언
 #results_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'results/' + model + '/results_sequence_' + sequence + '_' + 'darknet')#resnet
 #results_fullpath = '/workspace/home/results/darknet/results_sequence_1_darknet'
 #results_fullpath = '/home/workspace/results/darknet/results_sequence_1_darknet' #에러발생 ,2_darknet으로 해도 에러발생
-results_fullpath = os.path.join('/home/workspace/results/darknet/results_sequence_3_darknet') #멘토의 조언으로 3으로 바꿈
+#results_fullpath = os.path.join('/home/workspace/results/darknet/results_sequence_3_darknet') #멘토의 조언으로 3으로 바꿈
+results_fullpath = os.path.join('/home/workspace/results/fpn-resnet/results_sequence_1_resnet') #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                                                                #configs_det = det.load_configs(model_name="fpn_resnet")이므로 이렇게 수정
+
+
 datafile = WaymoDataFileReader(data_fullpath)
 datafile_iter = iter(datafile)  # initialize dataset iterator    
 print("data_fullpath: ", data_fullpath)
@@ -91,8 +104,11 @@ print("results_fullpath: ", results_fullpath)
 
 
 ## Initialize object detection
-#configs_det = det.load_configs(model_name='fpn_resnet') # options are 'darknet', 'fpn_resnet'
-configs_det = det.load_configs(model_name='darknet') # options are 'darknet', 'fpn_resnet'
+configs_det = det.load_configs(model_name='fpn_resnet') # options are 'darknet', 'fpn_resnet' #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                        #프로젝트 지침3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+
+#configs_det = det.load_configs(model_name='darknet') # options are 'darknet', 'fpn_resnet'
+
 model_det = det.create_model(configs_det)
 
 configs_det.use_labels_as_objects = False # True = use groundtruth labels as objects, False = use model-based detection
@@ -110,15 +126,30 @@ np.random.seed(10) # make random values predictable
 
 ## Selective execution and visualization
 
-exec_data = [] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_data = [] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_data = ['pcl_from_rangeimage']  #프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
+                                      #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3) 
+exec_data = ['pcl_from_rangeimage', 'load_image'] #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                   #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+
 #exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
-exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_detection = ['bev_from_pcl'] # 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1), #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)  
+                                  #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3) 
+exec_detection = ['bev_from_pcl', 'detect_objects'] #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                     #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+                   #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)
+                   #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
+                   #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)  
+                    #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
 #exec_visualization = [] # options are 'show_range_image', 'show_bev', 'show_pcl', 'show_labels_in_image', 'show_objects_and_labels_in_bev', 'show_objects_in_bev_labels_in_camera', 'show_tracks', 'show_detection_performance', 'make_tracking_movie'
-
 #exec_visualization = ['show_range_image'] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-exec_visualization = ['show_pcl']  #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-
+#exec_visualization = ['show_pcl']  #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_visualization = [] #프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) ,#프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)  
+                        #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
+exec_visualization = ['show_objects_in_bev_labels_in_camera'] #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+                                                               #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)  
 exec_list = make_exec_list(exec_detection, exec_tracking, exec_visualization)
 vis_pause_time = 0 # set pause time between frames in ms (0 = stop between frames until key is pressed)
 

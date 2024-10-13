@@ -52,15 +52,13 @@ import misc.params as params
 ## Set parameters and perform initializations
 
 ## Select Waymo Open Dataset file and frame numbers
-#data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-#data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-#data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1
+data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1 ,#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
 #data_filename = 'training_segment-10072231702153043603_5725_000_5745_000_with_camera_labels.tfrecord' # Sequence 2
-data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' # Sequence 3 #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' # Sequence 3 #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
 
 
-#show_only_frames = [0, 1] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-show_only_frames = [0, 200] # show only frames in interval for debugging ,프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+show_only_frames = [0, 1] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+#show_only_frames = [0, 200] # show only frames in interval for debugging ,프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
 
 ''' 
 #원본
@@ -76,12 +74,12 @@ datafile_iter = iter(datafile)  # initialize dataset iterator
 #멘토가 주신 것
 data_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', data_filename) # adjustable path in case this script is called from another working directory
 model = "darknet" #fpn-resnet
-#sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-sequence = "3" #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2), 멘토의 조언
+sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+#sequence = "3" #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2), 멘토의 조언
 #results_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'results/' + model + '/results_sequence_' + sequence + '_' + 'darknet')#resnet
-#results_fullpath = '/workspace/home/results/darknet/results_sequence_1_darknet'
+results_fullpath = '/workspace/home/results/darknet/results_sequence_1_darknet'
 #results_fullpath = '/home/workspace/results/darknet/results_sequence_1_darknet' #에러발생 ,2_darknet으로 해도 에러발생
-results_fullpath = os.path.join('/home/workspace/results/darknet/results_sequence_3_darknet') #멘토의 조언으로 3으로 바꿈
+#results_fullpath = os.path.join('/home/workspace/results/darknet/results_sequence_3_darknet') #멘토의 조언으로 3으로 바꿈
 datafile = WaymoDataFileReader(data_fullpath)
 datafile_iter = iter(datafile)  # initialize dataset iterator    
 print("data_fullpath: ", data_fullpath)
@@ -110,15 +108,17 @@ np.random.seed(10) # make random values predictable
 
 ## Selective execution and visualization
 
-exec_data = [] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_data = [] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+exec_data = ['pcl_from_rangeimage']  #프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
 #exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
-exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+#exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+exec_detection = ['bev_from_pcl'] # 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+
 #exec_visualization = [] # options are 'show_range_image', 'show_bev', 'show_pcl', 'show_labels_in_image', 'show_objects_and_labels_in_bev', 'show_objects_in_bev_labels_in_camera', 'show_tracks', 'show_detection_performance', 'make_tracking_movie'
-
 #exec_visualization = ['show_range_image'] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
-exec_visualization = ['show_pcl']  #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
-
+#exec_visualization = ['show_pcl']  #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+exec_visualization = [] #프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
 exec_list = make_exec_list(exec_detection, exec_tracking, exec_visualization)
 vis_pause_time = 0 # set pause time between frames in ms (0 = stop between frames until key is pressed)
 

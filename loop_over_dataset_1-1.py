@@ -107,13 +107,11 @@ camera = None # init camera sensor object
 np.random.seed(10) # make random values predictable
 
 ## Selective execution and visualization
-
 exec_data = [] ##프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
 #exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
 exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
 exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
 #exec_visualization = [] # options are 'show_range_image', 'show_bev', 'show_pcl', 'show_labels_in_image', 'show_objects_and_labels_in_bev', 'show_objects_in_bev_labels_in_camera', 'show_tracks', 'show_detection_performance', 'make_tracking_movie'
-
 exec_visualization = ['show_range_image'] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
 
 
