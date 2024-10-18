@@ -36,46 +36,75 @@ import matplotlib.pyplot as plt   #bev맵에서 숫자출력위한 모듈
 
 # visualize range image
 #이 함수는 LiDAR 데이터의 범위(range)와 강도(intensity) 이미지를 시각적으로 표현하는 함수
-def show_range_image(frame, lidar_name):
+def show_range_image(frame, lidar_name): #show_range_image 함수,역할: LiDAR 범위(range) 데이터를 시각화하여 각 포인트의 범위와 강도(intensity)를 보여줌.
     # frame: Waymo 데이터셋의 프레임 객체 ( LiDAR 데이터를 포함하는 정보)
-    # lidar_name: 처리할 LiDAR 센서의 이름 (예를 들어, 'TOP', 'FRONT' 등 특정 LiDAR 센서를 선택)
+    # idar_name: 처리할 LiDAR 센서의 이름 (예를 들어, 'TOP', 'FRONT' 등 특정 LiDAR 센서를 선택)
 
     ####### ID_S1_EX1 START #######   라이다 데이터를 시각화
     print("show_range_image - student task")
 
     # extract lidar data and range image for the roof-mounted lidar
+    #LiDAR 데이터 추출 및 압축 해제:
     lidar = waymo_utils.get(frame.lasers, lidar_name)
-    ri = dataset_pb2.MatrixFloat()
-    ri.ParseFromString(zlib.decompress(lidar.ri_return1.range_image_compressed))
-    ri = np.array(ri.data).reshape(ri.shape.dims)
+           #waymo_utils.get: frame 객체 안의 lasers 속성에서 lidar_name에 해당하는 LiDAR 데이터를 가져옴
+
+    ri = dataset_pb2.MatrixFloat() #dataset_pb2.MatrixFloat(): Waymo 데이터 구조의 범위 이미지 데이터를 저장하는 객체.
+    
+    ri.ParseFromString(zlib.decompress(lidar.ri_return1.range_image_compressed))  # Decompress and parse
+    #ri.ParseFromString: 압축된 LiDAR 데이터를 풀어서 범위 이미지로 변환
+    #내부로직 : lidar.ri_return1.range_image_compressed: LiDAR 데이터를 압축된 형태에서 복원하여, 범위 및 강도 값을 추출
+    #zlib.decompress: 압축을 풀기 위한 함수로, 압축된 range_image_compressed 데이터를 복원
+
+    ri = np.array(ri.data).reshape(ri.shape.dims)  # Reshape range image
+        #np.array(ri.data): ri 객체의 데이터를 NumPy 배열로 변환
+        #reshape: 배열의 차원을 재구성하여 이미지 형태로 만듬. ri.shape.dims는 이미지의 크기와 차원임
+
 
     # extract the range and the intensity channel from the range image
+    #범위 및 강도 채널 추출:
     ri_range = ri[:, :, 0]  # range channel
+    #ri[:, :, 0]: LiDAR 데이터의 첫 번째 채널을 사용해 범위 데이터를 추출
+
     ri_intensity = ri[:, :, 1]  # intensity channel
+    #ri[:, :, 1]: 두 번째 채널에서 강도 데이터를 추출
 
     # set values <0 to zero
-    ri_range[ri_range < 0] = 0.0
-    ri_intensity[ri_intensity < 0] = 0.0
+    #음수값을 0으로 설정
+    ri_range[ri_range < 0] = 0.0 #ri_range[ri_range < 0] = 0.0: 범위 데이터 중 0보다 작은 값을 모두 0으로 만듬
+    ri_intensity[ri_intensity < 0] = 0.0 #ri_intensity[ri_intensity < 0] = 0.0: 강도 데이터 중 0보다 작은 값을 모두 0으로 설정
 
     # map the range channel onto an 8-bit scale and normalize
+    #범위 및 강도 데이터의 8비트 스케일 변환:
     ri_range = (ri_range - np.min(ri_range)) / (np.max(ri_range) - np.min(ri_range)) * 255
     img_range = ri_range.astype(np.uint8)
+    #np.min(ri_range): 범위 데이터의 최소 값을 가져옴
+    #np.max(ri_range): 범위 데이터의 최대 값을 가져옴
+    #(ri_range - np.min(ri_range)) / (np.max(ri_range) - np.min(ri_range)) * 255: 범위 데이터를 0~255 사이로 정규화하여 8비트 이미지로 변환
+    #astype(np.uint8): 정규화된 값을 8비트 정수로 변환하여 이미지로 만듬
 
     # map the intensity channel onto an 8-bit scale
+    #강도 데이터의 8비트 스케일 변환:
     ri_intensity = np.clip(ri_intensity, 0, 1) * 255
+                 #np.clip(ri_intensity, 0, 1): 강도 값을 0과 1 사이로 제한
+                  
     img_intensity = ri_intensity.astype(np.uint8)
-
-    # stack the range and intensity image vertically
-    img_range_intensity = np.vstack((img_range, img_intensity))
+                 #astype(np.uint8): 강도 데이터를 8비트 이미지로 변환
     
-    # 범위 이미지를 전방 x축의 좌측 및 우측에서 +/- 90도로 잘라내기 (1차 제출후 멘토의 코드)
-    deg_90_range = int(img_range_intensity.shape[1] / 4)
-    center_range = int(img_range_intensity.shape[1] / 2)
-    img_range_intensity = img_range_intensity[:, center_range - deg_90_range:center_range + deg_90_range]
-
-    return img_range_intensity
+    # stack the range and intensity image vertically
+    #범위와 강도 이미지를 수직으로 쌓기:
+    img_range_intensity = np.vstack((img_range, img_intensity))
+                         #np.vstack((img_range, img_intensity)): 범위 이미지(img_range)와 강도 이미지(img_intensity)를 수직으로 쌓아 하나의 이미지로 만듬
+    
+    
+    
+    #내부로직 : img_range, img_intensity: LiDAR 데이터에서 범위와 강도를 시각적으로 표현하기 위해 8비트 이미지로 변환한 값
+    return img_range_intensity #return img_range_intensity: 결합된 범위 및 강도 이미지를 반환
 
     ####### ID_S1_EX1 END #######
+
+
+
+
 
 # visualize lidar point-cloud
 # LiDAR 포인트 클라우드를 시각화하는 함수
@@ -239,9 +268,9 @@ def bev_from_pcl(lidar_pcl, configs):
 
     # step 5: intensity map 시각화 (흑백 이미지로 시각화) 제프리의 코드를 따라함
     img_intensity = (intensity_map * 256).astype(np.uint8) #기존과 동일
-    cv2.imshow("Intensity map", img_intensity)  #섹션2를 위해서 비주석처리
-    cv2.waitKey(0) #멘토 주석처리
-    cv2.destroyAllWindows()  # #멘토 주석처리
+    #cv2.imshow("Intensity map", img_intensity)  #섹션2를 위해서 비주석처리
+    #cv2.waitKey(0) #멘토 주석처리
+    #cv2.destroyAllWindows()  # #멘토 주석처리
     ####### ID_S2_EX2 END #######
     
     # Compute height layer of the BEV map
@@ -261,9 +290,9 @@ def bev_from_pcl(lidar_pcl, configs):
     #멘토가 주신 코드 (이미지 강도맵구현)
     img_height = height_map * 256
     img_height = img_height.astype(np.uint8)
-    cv2.imshow('height map', img_height) #섹션2 과제출력
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    #cv2.imshow('height map', img_height) #섹션2 과제출력
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
     ####### ID_S2_EX3 END #######
     #lidar_pcl_cpy = [] #여기서 리스트로 초기화됨, np(numpy)이므로 리스트로 초기화 되어선 안됨 -->chatgpt의 조언
     #lidar_pcl_top = []

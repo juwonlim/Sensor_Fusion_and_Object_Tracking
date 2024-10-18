@@ -17,7 +17,6 @@ from tools.objdet_models.darknet.models.darknet2pytorch import Darknet as darkne
 from tools.objdet_models.resnet.models import fpn_resnet
 import numpy as np
 import torch
-#import torch_utils #torch_utils (sigmoid함수 로딩)위해서 추가 (1차 제출후 멘토가 추가해준 코드를 위해서 )
 from easydict import EasyDict as edict
 
 
@@ -290,15 +289,7 @@ def detect_objects(input_bev_maps, model, configs):
             #elif 'fpn_resnet' in configs.arch: 모델 아키텍처가 'fpn_resnet'일 경우, 이 조건문이 실행
 
             ####### ID_S3_EX1-5 START #######
-            # Apply sigmoid to the 'hm_cen' and 'cen_offset' outputs before decoding (1차 제출후 멘토의 추가 코드)-->torch_utils모듈인식불가
-            #outputs["hm_cen"] = torch_utils._sigmoid(outputs["hm_cen"])
-            #outputs["cen_offset"] = torch_utils._sigmoid(outputs["cen_offset"])
-
-            # Apply sigmoid to the 'hm_cen' and 'cen_offset' outputs before decoding --1차 제출후 멘토의 코드를 이렇게 수정해서 사용하기로 함. 직접 torch.sigmoid사용
-            outputs["hm_cen"] = torch.sigmoid(outputs["hm_cen"])
-            outputs["cen_offset"] = torch.sigmoid(outputs["cen_offset"])
-            
-            # Decode the outputs into detections
+            #######
             detections = decode(outputs['hm_cen'], outputs['cen_offset'], outputs['direction'], outputs['z_coor'],
                                 outputs['dim'], K=configs.K)
             
@@ -306,7 +297,6 @@ def detect_objects(input_bev_maps, model, configs):
             #outputs['hm_cen'], outputs['cen_offset'] 등: 모델이 예측한 여러 값들로, 각각 객체의 중심점, 오프셋, 방향, z좌표, 크기 등을 의미
             #K=configs.K: 상위 K개의 객체를 선택하는 값
             
-            # Convert the detections to numpy format
             detections = detections.cpu().numpy().astype(np.float32) 
             #이 부분에서 decoded_output이 Tensor에서 Numpy 배열로 변환
             #detections.cpu(): 텐서를 CPU 메모리로 이동시킴
@@ -316,7 +306,7 @@ def detect_objects(input_bev_maps, model, configs):
             #detections = post_processing(detections, configs) # 여기는 post_processing 함수 호출 시 conf_thresh와 같은 개별 인자를 전달하는 대신 configs 객체를 통째로 넘기는 방식
             #detections = detections[0][1]
 
-            # Apply post-processing to filter the results
+
             output_post = post_processing(detections, configs) # 여기는 post_processing 함수 호출 시 conf_thresh와 같은 개별 인자를 전달하는 대신 configs 객체를 통째로 넘기는 방식
             #output_post: 후처리된 결과를 저장하는 변수
             #post_processing(detections, configs): 감지된 객체에 대해 후처리를 수행하는 함수
