@@ -1,4 +1,13 @@
 
+# Udacity 3D Object Detection
+
+[![PDF Preview](https://via.placeholder.com/350x150.png?text=Click+to+view+the+PDF)](https://github.com/juwonlim/Udacity_3D_Object_Detection/blob/master/Udacity%20Self%20Driving%20Car%20Engineer%20NanoDegree._3d_Object%20Detection_writeup_Rev_02.pdf)
+
+Click the image above or [click here](https://github.com/juwonlim/Udacity_3D_Object_Detection/blob/master/Udacity%20Self%20Driving%20Car%20Engineer%20NanoDegree._3d_Object%20Detection_writeup_Rev_02.pdf) to view the PDF writeup.
+
+
+
+
 # SDCND : Sensor Fusion and Tracking
 This is the project for the second course in the  [Udacity Self-Driving Car Engineer Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213) : Sensor Fusion and Tracking. 
 
