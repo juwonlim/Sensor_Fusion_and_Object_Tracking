@@ -34,6 +34,8 @@ class Track:
         # unassigned measurement transformed from sensor to vehicle coordinates
         # - initialize track state and track score with appropriate values
         ############
+        '''mid term 과제 코드 
+
          ############
         # - 고정 초기값을 사용하여 x와 P를 초기화
         # - 트랙의 상태와 점수를 적절히 초기화
@@ -52,6 +54,7 @@ class Track:
                         [0.0e+00, 0.0e+00, 0.0e+00, 2.5e+03, 0.0e+00, 0.0e+00],
                         [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 2.5e+03, 0.0e+00],
                         [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 2.5e+01]])
+
         # 트랙 상태와 점수 초기화
         self.state = 'initialized'  # 초기화 상태
         self.score = 1  # 초기 점수 설정
@@ -71,6 +74,36 @@ class Track:
         self.height = meas.height
         self.yaw =  np.arccos(M_rot[0,0]*np.cos(meas.yaw) + M_rot[0,1]*np.sin(meas.yaw)) # transform rotation from sensor to vehicle coordinates
         self.t = meas.t
+        '''
+        #mabhi의 코드 응용
+        pos_sens = np.ones((4, 1))
+        pos_sens[0:3] = meas.z[0:3] 
+        pos_veh = meas.sensor.sens_to_veh*pos_sens
+        self.x = np.zeros((6,1))
+        self.x[0:3] = pos_veh[0:3]
+
+
+        P_pos = M_rot * meas.R * np.transpose(M_rot)
+        P_vel = np.matrix([[params.sigma_p44**2, 0, 0],
+                           [0, params.sigma_p55**2, 0],
+                           [0, 0, params.sigma_p66**2]])
+        self.P = np.zeros((6, 6))
+        self.P[0:3, 0:3] = P_pos
+        self.P[3:6, 3:6] = P_vel
+        self.state = 'initialized'
+        self.score = 1/params.window
+
+         # other track attributes
+        self.id = id
+        self.width = meas.width
+        self.length = meas.length
+        self.height = meas.height
+        self.yaw =  np.arccos(M_rot[0,0]*np.cos(meas.yaw) + M_rot[0,1]*np.sin(meas.yaw)) # transform rotation from sensor to vehicle coordinates
+        self.t = meas.t
+
+
+
+        
 
     def set_x(self, x):
         self.x = x

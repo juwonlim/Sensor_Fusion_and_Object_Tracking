@@ -52,14 +52,16 @@ import misc.params as params
 ## Set parameters and perform initializations
 
 ## Select Waymo Open Dataset file and frame numbers
-data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1 ,#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1)
+#data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1 ,#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1), 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1)
                                                                                                                     #프로젝트 지침 2단계,BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
                                                                                                                     #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
                                                                                                                     #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
                                                                                                                     #프로젝트 지침 3단계, 모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
                                                                                                                     #프로젝트 지침  4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
                                                                                                                     #프로젝트 지침 4단계, 정밀도 및 재현율 계산 (ID_S4_EX3)
-#data_filename = 'training_segment-10072231702153043603_5725_000_5745_000_with_camera_labels.tfrecord' # Sequence 2
+
+data_filename = 'training_segment-10072231702153043603_5725_000_5745_000_with_camera_labels.tfrecord' # Sequence 2 --> 최종프로젝트 1단계
+
 #data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord' # Sequence 3 #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
 
 
@@ -67,8 +69,10 @@ data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_cam
                           #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
                           #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
                           
-show_only_frames = [50, 150]   #프로젝트 지침 4단계 , 정밀도 및 재현율 계산 (ID_S4_EX3)
-                    
+#show_only_frames = [50, 150]   #프로젝트 지침 4단계 , 정밀도 및 재현율 계산 (ID_S4_EX3)
+
+show_only_frames = [150, 200] # 최종프로젝트 1 단계                   
+
 #show_only_frames = [0, 200] # show only frames in interval for debugging ,프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
 #show_only_frames = [50, 51] #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
                             #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
@@ -87,23 +91,32 @@ datafile_iter = iter(datafile)  # initialize dataset iterator
 ## Prepare Waymo Open Dataset file for loading
 #멘토가 주신 것
 data_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dataset', data_filename) # adjustable path in case this script is called from another working directory
-model = "darknet" #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+#model = "darknet" #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
 
-#model = 'fpn-resnet'  #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1), configs_det = det.load_configs(model_name="fpn_resnet")이므로 이렇게 수정
-
-sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+model = 'fpn-resnet'  #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1), configs_det = det.load_configs(model_name="fpn_resnet")이므로 이렇게 수정
+                       #최종프로젝트 1단계
+                       
+#sequence = "1" #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
                #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2) 
                 #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+
+sequence = "2" #최종프로젝트 1단계
+
 #sequence = "3" #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2), 멘토의 조언
+
+
+
+
 #results_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'results/' + model + '/results_sequence_' + sequence + '_' + 'darknet')#resnet
-results_fullpath = '/workspace/home/results/darknet/results_sequence_1_darknet'
+#results_fullpath = '/workspace/home/results/darknet/results_sequence_1_darknet'
 #results_fullpath = '/home/workspace/results/darknet/results_sequence_1_darknet' #에러발생 ,2_darknet으로 해도 에러발생
 #results_fullpath = os.path.join('/home/workspace/results/darknet/results_sequence_3_darknet') #멘토의 조언으로 3으로 바꿈
                                                                                             #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
 
 #results_fullpath = os.path.join('/home/workspace/results/fpn-resnet/results_sequence_1_resnet') #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
                                                                                                 #configs_det = det.load_configs(model_name="fpn_resnet")이므로 이렇게 수정
-
+                                                                                               
+results_fullpath = os.path.join('/home/workspace/results')  #최종프로젝트 1단계, 중기프로젝트와는 폴더구조가 달라서 이렇게 해야함
 
 datafile = WaymoDataFileReader(data_fullpath) #init.py
 datafile_iter = iter(datafile)  # initialize dataset iterator    
@@ -114,10 +127,11 @@ print("results_fullpath: ", results_fullpath)
 
 
 ## Initialize object detection
-#configs_det = det.load_configs(model_name='fpn_resnet') # options are 'darknet', 'fpn_resnet' #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
+configs_det = det.load_configs(model_name='fpn_resnet') # options are 'darknet', 'fpn_resnet' #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
                                                         #프로젝트 지침3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
+                                                         #최종프로젝트 1단계
 
-configs_det = det.load_configs(model_name='darknet') # options are 'darknet', 'fpn_resnet'
+ #configs_det = det.load_configs(model_name='darknet') # options are 'darknet', 'fpn_resnet'
                                                      #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
                                                      #프로젝트 지침 4단계,정밀도 및 재현율 계산 (ID_S4_EX3)
 
@@ -131,6 +145,8 @@ configs_det.use_labels_as_objects = False # True = use groundtruth labels as obj
 
 ## Uncomment this setting to restrict the y-range in the final project
 # configs_det.lim_y = [-25, 25] 
+configs_det.lim_y = [-5, 10] #최종프로젝트 1단계 , y-범위를 제한하고 표적의 좌우에 있는 다른 표적들을 제거
+
 
 ## Initialize tracking
 KF = Filter() # set up Kalman filter #filter.py 파일
@@ -151,23 +167,29 @@ exec_data = ['pcl_from_rangeimage']  #프로젝트 지침 2단계,센서 좌표�
 #exec_data = ['pcl_from_rangeimage', 'load_image'] #프로젝트 지침 3단계,  GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
                                                    #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
 
-exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
+#exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
                  ##프로젝트 지침  4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
                  #프로젝트 지침 4단계, 정밀도 및 재현율 계산 (ID_S4_EX3)
                                                             
-#exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+exec_detection = [] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2)
+                    #최종 프로젝트 1단계, 더 빠른 실행을 위해 라이다 감지를 건너뛰고 그 대신 파일에서 라이다 결과를 로드
+
 #exec_detection = ['bev_from_pcl'] # 프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1), #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)  
                                   #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3) 
 #exec_detection = ['bev_from_pcl', 'detect_objects'] #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
                                                      #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
-exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
+#exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1),라이다 포인트 클라우드 시각화 (ID_S1_EX2),프로젝트 지침 2단계,센서 좌표를 BEV-맵 좌표로 변환(ID_S2_EX1) 
                    #프로젝트 지침 2단계, BEV 맵의 강도 레이어 계산 (ID_S2_EX2)
                    #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
                    #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)  
                    #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)
                    #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
                    #프로젝트 지침 4단계, 정밀도 및 재현율 계산 (ID_S4_EX3)
-                
+
+exec_tracking = ['perform_tracking'] #최종프로젝트 1단계, 추적을 활성화
+
+
+
 #exec_visualization = [] # options are 'show_range_image', 'show_bev', 'show_pcl', 'show_labels_in_image', 'show_objects_and_labels_in_bev', 'show_objects_in_bev_labels_in_camera', 'show_tracks', 'show_detection_performance', 'make_tracking_movie'
 #exec_visualization = ['show_range_image'] #프로젝트 지침 1단계, 범위 이미지 채널 시각화 (ID_S1_EX1)
 #exec_visualization = ['show_pcl']  #프로젝트 지침 1단계, 라이다 포인트 클라우드 시각화 (ID_S1_EX2)
@@ -175,8 +197,11 @@ exec_tracking = [] # options are 'perform_tracking',#프로젝트 지침 1단계
                         #프로젝트 지침 2단계,BEV 맵 높이 레이어 계산(ID_S2_EX3)
 #exec_visualization = ['show_objects_in_bev_labels_in_camera'] #프로젝트 지침 3단계,GitHub repo에서 두 번째 모델 추가 (ID_S3_EX1)
                                                                #프로젝트 지침 3단계,모델 응답에서 3D 경계 상자 추출 (ID_S3_EX2)  
-exec_visualization = ['show_detection_performance']  #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
+#exec_visualization = ['show_detection_performance']  #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
                                                      #프로젝트 지침 4단계, 정밀도 및 재현율 계산 (ID_S4_EX3)
+
+exec_visualization = ['show_tracks'] #최종프로젝트 1단계, 트랙 시각화
+
 
 
 exec_list = make_exec_list(exec_detection, exec_tracking, exec_visualization) #make_exec_list (helpers.py)

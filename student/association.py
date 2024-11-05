@@ -148,10 +148,30 @@ class Association:
         ############
         # TODO Step 3: return True if measurement lies inside gate, otherwise False
         ############
+        ''' 
+        #mid term제출코드
         """Gating based on Mahalanobis distance and sensor type"""
         # Define gating thresholds based on the sensor type
         threshold = params.gating_threshold[sensor.name]  # assume there's a threshold in params for each sensor
         return dist < threshold
+        '''
+
+        ''' 
+        #mabhi의 코드응용
+        limit = chi2.ppf(params.gating_threshold, df = sensor.dim_meas)
+        if MHD < limit:
+            return True
+        else:
+            return False
+        '''
+        #ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() --> chatgpt가 도와준 에러해결코드
+        limit = chi2.ppf(params.gating_threshold, df=sensor.dim_meas)
+        if np.isscalar(MHD):
+            return MHD < limit
+        else:
+            return np.any(MHD < limit)
+
+
            
         
         ############
@@ -169,7 +189,8 @@ class Association:
         #S:잔차의 공분산 행렬
         #gamma: 측정값과 예측된 값 간의 잔차
 
-
+        '''
+        #mid term 제출 코드
         H = meas.sensor.get_H(track.x)  # measurement matrix
         S = H * KF.P * H.T + meas.R  # covariance of residual
         gamma = meas.z - meas.sensor.get_hx(track.x)  # residual
@@ -178,6 +199,14 @@ class Association:
                                                    #Mahalanobis 거리를 계산하고 반환.
         
         return dist.item()
+        '''
+        #mabhi의 코드응용
+        H = meas.sensor.get_H(track.x)
+        S_inv = np.linalg.inv(KF.S(track,meas,H))
+        gamma = KF.gamma(track, meas)
+        return gamma.T*S_inv*gamma
+
+        
         
         ############
         # END student code

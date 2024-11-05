@@ -64,6 +64,9 @@ class Filter:
         ############
         # 프로세스 노이즈 공분산 행렬 Q를 구현
         # 시스템의 불확실성을 고려하는 행렬을 반환
+        ''' 
+        #mid term제출코드
+
         q = params.q
         dt = params.dt
         Q = q * np.matrix([[dt**3 / 3, 0, dt**2 / 2, 0, 0, 0],
@@ -73,6 +76,23 @@ class Filter:
                            [0, 0, 0, 0, dt, 0],
                            [0, 0, 0, 0, 0, dt]])
         return Q
+        '''
+        #mabhi의 코드응용
+        q = params.q
+        dt = params.dt
+        q1 = ((dt**3)/3) * q 
+        q2 = ((dt**2)/2) * q 
+        q3 = dt * q 
+        Q = np.matrix([[q1, 0, 0, q2, 0, 0],
+                          [0, q1, 0, 0, q2, 0],
+                          [0, 0, q1, 0, 0, q2],
+                          [q2, 0, 0, q3, 0, 0],
+                          [0, q2, 0, 0, q3, 0],
+                          [0, 0, q2, 0, 0, q3]])
+    
+        return Q
+
+
 
         #return 0
         ############
@@ -83,11 +103,24 @@ class Filter:
         ############
         # TODO Step 1: predict state x and estimation error covariance P to next timestep, save x and P in track
         ############
+        ''' 
+        #mid term 제출
         # 상태 x와 공분산 P를 다음 시점으로 예측하여 track에 저장 
         #미래의 상태를 예측한 후 track 객체에 저장된 x(상태벡터)와 p(오차 공분산 행렬)을 (직접)갱신, 그래서 no return 값
         F = self.F()
         track.x = F * track.x  # 상태 예측
         track.P = F * track.P * F.T + self.Q()  # 공분산 예측
+        '''
+        #final project, mabhi코드 응용
+        F = self.F()
+        x = track.x
+        P = track.P
+        x = F*track.x # state prediction
+        P = F*track.P*F.transpose() + self.Q() # covariance prediction
+        track.set_x(x)
+        track.set_P(P)
+
+
 
        #pass
         ############

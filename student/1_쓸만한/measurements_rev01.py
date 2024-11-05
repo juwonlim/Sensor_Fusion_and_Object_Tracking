@@ -218,7 +218,6 @@ class Sensor:
         
         
 ################### 
-
         
 class Measurement:
     '''Measurement class including measurement values, covariance, timestamp, sensor'''
@@ -275,18 +274,15 @@ class Measurement:
             ############
             #측정 벡터(z): 카메라에서 측정한 데이터를 기반으로 z 값을 설정.
             #측정 노이즈 공분산 행렬(R): 카메라 측정에 대한 노이즈 값을 반영한 공분산 행렬을 설정.
-            
-            # 카메라 측정 노이즈 표준편차
-            
-            sigma_cam_i = params.sigma_cam_i  # i축 카메라 측정 노이즈
-            sigma_cam_j = params.sigma_cam_j  # j축 카메라 측정 노이즈
+            sigma_camera_i = params.sigma_camera_i  # i축 카메라 측정 노이즈
+            sigma_camera_j = params.sigma_camera_j  # j축 카메라 측정 노이즈
             
             self.z = np.zeros((sensor.dim_meas, 1))  # 측정 벡터 초기화
             self.z[0] = z[0]  # i축 측정값
             self.z[1] = z[1]  # j축 측정값
             
-            self.R = np.matrix([[sigma_cam_i**2, 0],  # 측정 노이즈 공분산 행렬
-                        [0, sigma_cam_j**2]])
+            self.R = np.matrix([[sigma_camera_i**2, 0],  # 측정 노이즈 공분산 행렬
+                        [0, sigma_camera_j**2]])
             
             self.width = z[2]  # Mabhi 코드의 camera 관련 추가값
             self.length = z[3] # Mabhi 코드의 camera 관련 추가값
