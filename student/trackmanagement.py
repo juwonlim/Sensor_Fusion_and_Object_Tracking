@@ -163,10 +163,29 @@ class Trackmanagement:
                     pass 
             '''
         # delete old tracks
+        ''' 
+        #문제가 되었던 코드
         # 오래된 트랙 삭제
         for track in self.track_list:
             if track.score < params.delete_threshold or np.max(track.P.diagonal()) > params.max_P:
-                self.delete_track(track)   
+                self.delete_track(track)
+        '''
+
+        #멘토님의 코드
+        #manage_tracks 함수에서 현재 track의 score가 일정값 이하면 state와 상관없이 그냥 삭제가 되고 있습니다.
+        #아래처럼 confirm이 된 track일 경우에만 삭제를 해주셔야 합니다. 아니면 track이 score가 쌓이기도 전에 바로 삭제가 되버립니다.
+        
+       # 오래된 트랙 삭제
+        deleted_tracks = []
+        for i in unassigned_tracks:
+            track = self.track_list[i]
+            if track.state == "confirmed" and track.score < params.delete_threshold:
+                deleted_tracks.append(track)
+                
+        for track in deleted_tracks:
+            self.delete_track(track)
+                    
+        
 
         ############
         # END student code
