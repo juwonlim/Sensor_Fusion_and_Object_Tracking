@@ -205,8 +205,8 @@ exec_tracking = ['perform_tracking'] #최종프로젝트 1단계, 추적을 활�
 #exec_visualization = ['show_detection_performance']  #프로젝트 지침 4단계,레이블과 감지 사이의 교집합 대 합집합의 비(IoU) 계산
                                                      #프로젝트 지침 4단계, 정밀도 및 재현율 계산 (ID_S4_EX3)
 
-exec_visualization = ['show_tracks'] #최종프로젝트 1단계, 트랙 시각화
-
+#exec_visualization = ['show_tracks'] #최종프로젝트 1단계, 트랙 시각화
+exec_visualization = ['show_tracks', 'make_tracking_movie'] #최종프로젝트 4단계
 
 
 exec_list = make_exec_list(exec_detection, exec_tracking, exec_visualization) #make_exec_list (helpers.py)
@@ -415,7 +415,7 @@ if 'show_detection_performance' in exec_list:
 
 ## Plot RMSE for all tracks
 if 'show_tracks' in exec_list:
-    plot_rmse(manager, all_labels, configs_det)
+    plot_rmse(manager, all_labels)
 
 ## Make movie from tracking results    
 if 'make_tracking_movie' in exec_list:

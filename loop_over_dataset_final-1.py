@@ -410,7 +410,8 @@ if 'show_detection_performance' in exec_list:
 
 ## Plot RMSE for all tracks
 if 'show_tracks' in exec_list:
-    plot_rmse(manager, all_labels, configs_det)
+    #plot_rmse(manager, all_labels, configs_det)
+    plot_rmse(manager, all_labels)
 
 ## Make movie from tracking results    
 if 'make_tracking_movie' in exec_list:

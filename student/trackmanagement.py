@@ -202,7 +202,7 @@ class Trackmanagement:
         # - 트랙 상태를 'tentative' 또는 'confirmed'로 설정
         ############
         track.score += 1  # 트랙 점수 증가
-        if track.score > params.confirm_threshold:
+        if track.score > params.confirmed_threshold:
             track.state = 'confirmed'  # 점수가 임계값을 넘으면 '확정' 상태로 전환
         else:
             track.state = 'tentative'  # 그렇지 않으면 '잠정적' 상태
