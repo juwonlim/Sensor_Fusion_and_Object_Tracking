@@ -95,7 +95,46 @@ class Association:
         # END student code
         ############ 
                 
-    def get_closest_track_and_meas(self): 
+    ''' '''            
+    def get_closest_track_and_meas(self):
+        #멘토가 주신 코드
+        ############
+        # TODO Step 3: find closest track and measurement:
+        # - find minimum entry in association matrix
+        # - delete row and column
+        # - remove corresponding track and measurement from unassigned_tracks and unassigned_meas
+        # - return this track and measurement
+        ############
+        # Find the closest track and measurement based on the association matrix
+        if np.all(self.association_matrix == np.inf):
+            # Return NaN if no more associations can be found
+            return np.nan, np.nan
+
+        # Find the indexes of the minimum value in the association matrix
+        track_idx, meas_idx = np.unravel_index(np.argmin(self.association_matrix), self.association_matrix.shape)
+
+        # Check if the found association is valid
+        if self.association_matrix[track_idx, meas_idx] == np.inf:
+            return np.nan, np.nan
+
+        # Get the corresponding track and measurement indices
+        track_ind = self.unassigned_tracks[track_idx]
+        meas_ind = self.unassigned_meas[meas_idx]
+
+        # Remove the associated track and measurement from the unassigned lists
+        del self.unassigned_tracks[track_idx]
+        del self.unassigned_meas[meas_idx]
+
+        # Set the corresponding value in the association matrix to infinity to mark it as used
+        self.association_matrix = np.delete(self.association_matrix, track_idx, axis=0)
+        self.association_matrix = np.delete(self.association_matrix, meas_idx, axis=1)
+
+        return track_ind, meas_ind
+
+
+        ''' 
+        #association.py", line 118, in get_closest_track_and_meas self.unassigned_tracks.remove(track_idx) ValueError: list.remove(x): x not in list
+        #위의 에러 발생했던 코드
         #역할: association_matrix에서 가장 작은 값을 찾아 그 트랙과 측정값을 반환
         #내부로직: 가장 작은 거리 값을 찾고 해당 트랙과 측정값을 unassigned_tracks와 unassigned_meas 리스트에서 제거 ,선택된 트랙과 측정값의 인덱스를 반환.
                  
@@ -122,6 +161,7 @@ class Association:
         self.association_matrix[track_idx, meas_idx] = np.inf
         
         return track_idx, meas_idx
+        '''
 
 
 

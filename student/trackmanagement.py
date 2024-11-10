@@ -174,6 +174,31 @@ class Trackmanagement:
         #멘토님의 코드
         #manage_tracks 함수에서 현재 track의 score가 일정값 이하면 state와 상관없이 그냥 삭제가 되고 있습니다.
         #아래처럼 confirm이 된 track일 경우에만 삭제를 해주셔야 합니다. 아니면 track이 score가 쌓이기도 전에 바로 삭제가 되버립니다.
+       
+        '''
+        멘토가 제공한 "오래된 트랙 삭제" 코드는 추적 관리 시스템에서 오래된(낮은 점수를 가진) 트랙을 삭제하기 위해 설계된 것입니다. 
+        이 코드는 특정 조건에 따라 트랙을 확인하고 필요하면 삭제합니다. 여기서 의미하는 바는 다음과 같습니다:
+        deleted_tracks 리스트 생성:
+
+        deleted_tracks라는 빈 리스트를 생성하여 삭제해야 할 트랙을 저장합니다.
+        할당되지 않은 트랙 순회:
+
+        for i in unassigned_tracks: 루프는 unassigned_tracks 리스트를 순회합니다. 
+        unassigned_tracks는 현재 매칭되지 않은 트랙의 인덱스를 포함하는 리스트일 수 있습니다.
+        트랙 조건 확인:
+
+        각 트랙을 확인하여 track.state가 "confirmed"인 경우와 track.score가 params.delete_threshold보다 
+        작은 경우에 해당 트랙을 deleted_tracks 리스트에 추가합니다.
+        여기서 track.state == "confirmed"는 해당 트랙이 확인된 상태(신뢰할 수 있는 상태)임을 의미합니다.
+        track.score < params.delete_threshold는 해당 트랙이 특정 임계값 미만의 점수를 가진 경우를 나타냅니다. 
+        즉, 트랙이 충분히 신뢰할 수 없거나 오래되었을 수 있습니다.
+        트랙 삭제:
+
+        for track in deleted_tracks: 루프는 삭제해야 할 트랙을 실제로 삭제하는 작업을 수행합니다.
+        self.delete_track(track)은 해당 트랙을 관리하는 목록이나 데이터 구조에서 트랙을 제거합니다.
+        이 코드의 목적은 오래되거나 신뢰할 수 없는 트랙을 제거하여 추적 관리 시스템을 정리하고 더 신뢰할 수 있는 트랙만 유지하도록 하는 것입니다. 
+        이 방식은 객체 추적 알고리즘에서 자주 사용되는 개념으로, 추적이 오래되었거나 더 이상 유효하지 않을 때 시스템 리소스를 확보하고 정확성을 높이기 위한 것입니다.
+        '''
         
        # 오래된 트랙 삭제
         deleted_tracks = []
