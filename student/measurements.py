@@ -122,11 +122,29 @@ class Sensor:
             pos_veh = np.ones((4, 1))
             pos_veh[0:3] = x[0:3]
             pos_sens = self.veh_to_sens * pos_veh
+            hx = np.zeros((2,1)) #멘토가 제공한 hx함수를 위해서 이 코드 삽입
             if pos_sens[0] == 0:  # x축 값이 0인 경우 예외 처리
                 raise ZeroDivisionError('Division by zero in camera projection')
-            i = self.f_i * pos_sens[0] / pos_sens[2] + self.c_i
-            j = self.f_j * pos_sens[1] / pos_sens[2] + self.c_j
-            return np.array([i, j])
+            else:
+                hx[0, 0] = self.c_i - self.f_i * pos_sens[1] / pos_sens[0] #멘토의 코드
+                hx[1, 0] = self.c_j - self.f_j * pos_sens[2] / pos_sens[0] #멘토의 코드
+            return hx
+        '''
+        새 함수와 개선된 점:
+        hx 벡터 사용:
+        새로 제공된 함수는 hx라는 2x1 배열을 사용하여 i와 j 값을 명시적으로 저장하고 반환합니다. 이는 좀 더 명확하게 값을 관리하는 방법입니다.
+        투영 방식 변경:
+        새 코드에서는 hx[0,0] = self.c_i - self.f_i * pos_sens[1] / pos_sens[0] 형태로 pos_sens[1]과 pos_sens[0]의 비율을 사용하여 hx의 값을 설정합니다. 마찬가지로 hx[1,0]에 대해서도 비슷한 방식이 적용됩니다.
+        기존 코드에서는 i와 j를 별도의 변수로 두고 pos_sens[0]과 pos_sens[2]의 비율을 사용해 계산했지만, 새 코드에서는 hx로 결과를 묶어 반환하고 카메라 좌표계로의 투영이 보다 명확하게 구현됩니다.
+        요약:
+        새 코드에서는 카메라 투영을 보다 명확하게 관리하며, ZeroDivisionError의 예외 처리도 그대로 유지합니다.
+        기존 코드와 달리, hx라는 벡터로 값을 반환하여 명시적으로 카메라의 i, j 좌표 투영을 관리합니다.
+        새 코드가 더 명확한 방식으로 카메라 좌표계로의 변환을 수행하기 때문에, 에러 발생을 줄이고 좀 더 안정적인 투영 결과를 보장할 가능성이 있습니다.
+        '''
+
+            #i = self.f_i * pos_sens[0] / pos_sens[2] + self.c_i #기존 에러발생코드 #weihted_dist ValueError: setting an array element with a sequence. association_matrix0
+            #j = self.f_j * pos_sens[1] / pos_sens[2] + self.c_j #기존 에러발생코드 #weihted_dist ValueError: setting an array element with a sequence. association_matrix0
+            #return np.array([i, j])
             #변수 ,i, j: 카메라 이미지 좌표계로 투영된 객체의 위치
 
             ############

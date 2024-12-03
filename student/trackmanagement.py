@@ -154,7 +154,8 @@ class Trackmanagement:
             # check visibility
             # 측정값의 시야에 있는지 확인   
             if meas_list and meas_list[0].sensor.in_fov(track.x):
-                track.score -= 1  # 점수를 줄임
+               track.score -= 1 / params.window #멘토의 코드 (멘토는 1을 빼고 줬으나 '/'앞에 숫자와야함.chatgpt조언)
+               #track.score -= 1  # 점수를 줄임 -->기존코드 
 
             '''
             if meas_list: # if not empty
@@ -201,7 +202,22 @@ class Trackmanagement:
         '''
         
        # 오래된 트랙 삭제
-        deleted_tracks = []
+        delete_tracks = []
+        #멘토님 두번째 코드
+        for i in range(len(self.track_list)):
+            track = self.track_list[i]
+            if track.state == 'confirmed' and track.score < params.delete_threshold:
+                delete_tracks.append(track)
+                continue
+            if track.score < 0.15:
+                delete_tracks.append(track)
+                continue
+            if track.P[0, 0] > params.max_P or track.P[1, 1] > params.max_P:
+                delete_tracks.append(track)
+
+
+        ''' 
+        #멘토님 첫번째 코드 --> 폐기됨
         for i in unassigned_tracks:
             track = self.track_list[i]
             if track.state == "confirmed" and track.score < params.delete_threshold:
@@ -209,6 +225,9 @@ class Trackmanagement:
                 
         for track in deleted_tracks:
             self.delete_track(track)
+            '''
+        
+
                     
         
 
@@ -223,9 +242,17 @@ class Trackmanagement:
                 self.init_track(meas_list[j])
             
     def addTrackToList(self, track):
+        #새로운 측정을 기반으로 트랙을 초기화
         self.track_list.append(track)
         self.N += 1
         self.last_id = track.id
+
+        # chatgpt - 디버깅: 새로 생성된 트랙의 초기 값 출력
+        print(f"Initialized Track ID: {track.id}")
+        print(f"Initial x: {track.x}")
+        print(f"Initial P: {track.P}")
+        print(f"Initial State: {track.state}")
+        print(f"Initial Score: {track.score}")
 
     def init_track(self, meas):
         track = Track(meas, self.last_id + 1)
@@ -245,11 +272,66 @@ class Trackmanagement:
         # - 트랙 점수를 증가시킴
         # - 트랙 상태를 'tentative' 또는 'confirmed'로 설정
         ############
+        ''' 
+        #https://github.com/jckuri/Sensor-Fusion-and-Object-Tracking-2/blob/main/student/trackmanagement.py#L118
+        #jckuri의 코드
+        track.append_assignment_and_compute_score(1, cnt_frame)
+        if track.state == 'initialized' and track.score >= 0.8:
+            track.state = 'tentative'
+        if track.state == 'tentative' and track.score >= 1.5:
+            track.state = 'confirmed'
+        '''
+       
+        
+        #여기서부터 멘토가 준 코드
+        track.score += 1. / params.window  # 트랙 점수 증가
+
+        # CHATGPT추천-디버깅: 트랙의 상태와 공분산 값(P[0,0]과 P[1,1]) 출력
+        # 트랙이 지나치게 빠르게 삭제되지 않도록 하기 위해 𝑃[0,0],,𝑃[1,1] 값이 params.max_P 조건을 만족하는지 확인
+        # 만약 P 값이 너무 크다면, 이는 트랙이 불안정하다는 의미로 간주
+        # P[0,0], P[1,1] 값이 지나치게 크면: params.max_P 값을 조정하여 허용 가능한 범위를 더 넓힐 것
+        # 예: max_P = 20 → max_P = 50로 조정
+        # P[0,0], P[1,1] 값이 적절하다면: 다른 원인을 점검해야 하며, 상태 변경 조건 (confirmed_threshold, delete_threshold)을 다시 살펴보아야 함
+        print(f"Track ID {track.id} - Score: {track.score}, State: {track.state}, P[0,0]: {track.P[0,0]}, P[1,1]: {track.P[1,1]}")
+
+        if track.score >= params.delete_threshold:
+            track.state = 'tentative'  # 그렇지 않으면 '잠정적' 상태
+            print(f"Track ID {track.id} is now tentative") #디버그코드
+        if track.score >= params.confirmed_threshold:
+            track.state = 'confirmed'  # 점수가 임계값을 넘으면 '확정' 상태로 전환
+            print(f"Track ID {track.id} is now confirmed") #디버그코드
+        #여기까지 멘토가 준 코드 (아래의 기존코드 대체)
+        
+
+        ''' 
+        #기존 코드
         track.score += 1  # 트랙 점수 증가
         if track.score > params.confirmed_threshold:
             track.state = 'confirmed'  # 점수가 임계값을 넘으면 '확정' 상태로 전환
         else:
             track.state = 'tentative'  # 그렇지 않으면 '잠정적' 상태
+        '''
+
+        '''
+        chatgpt 조언 : 
+        트랙 점수 증가 방식:
+
+        첫 번째 코드(멘토의 코드)에서는 track.score가 1. / params.window만큼 증가합니다. 
+        이는 트랙 점수 증가에 가중치를 두는 방식으로, params.window의 값에 따라 점수가 더 천천히 또는 더 빠르게 증가할 수 있습니다.
+        두 번째 코드(기존코드)에서는 track.score가 1씩 고정된 값으로 증가합니다. 이는 더 단순한 증가 방식입니다.
+        
+        상태 전환 조건:
+
+        첫 번째 코드(멘토 코드)에서는 두 개의 조건문이 사용되어, track.score가 params.delete_threshold 이상일 때 상태를 'tentative'로 설정하고, 
+        params.confirmed_threshold 이상일 때 'confirmed'로 전환합니다. 즉, 두 가지 조건을 순차적으로 확인하여 트랙 상태를 변경합니다.
+        두 번째 코드(기존코드) 에서는 track.score가 params.confirmed_threshold를 초과할 때 'confirmed' 상태로 전환되고, 
+        그렇지 않은 경우 'tentative'로 설정합니다. 여기서는 단일 조건에 의해 상태가 결정됩니다.
+        주요 차이점 요약:
+
+        첫 번째 코드(멘토코드)는 트랙 점수 증가 방식이 가중치를 사용하고, 상태 전환이 두 가지 조건에 따라 이루어집니다.
+        두 번째 코(기존코드)드는 점수가 1씩 증가하며, 단일 조건을 기준으로 상태가 전환됩니다.
+        따라서 첫 번째 코드는 보다 정교한 트랙 관리 및 점수 증가 로직을 제공하는 반면, 두 번째 코드는 더 단순한 로직입니다
+        '''
 
 
         #pass
